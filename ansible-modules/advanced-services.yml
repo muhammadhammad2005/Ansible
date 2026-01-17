@@ -1,0 +1,15 @@
+---
+- name: Advanced Services (Local)
+  hosts: local
+  become: yes
+  tasks:
+    - name: Ensure SSH service
+      block:
+        - package:
+            name: openssh-server
+            state: present
+
+        - service:
+            name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+            state: started
+            enabled: yes
