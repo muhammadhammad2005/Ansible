@@ -1,0 +1,17 @@
+---
+- name: External Variables Demo (Local)
+  hosts: local
+
+  tasks:
+    - debug:
+        msg: |
+          App: {{ app_name }}
+          Version: {{ app_version }}
+          Port: {{ app_port }}
+          Environment: {{ environment }}
+
+    - debug:
+        msg: |
+          Logs: {{ log_directory }}
+          Config: {{ config_directory }}
+          Max Connections: {{ max_connections }}
