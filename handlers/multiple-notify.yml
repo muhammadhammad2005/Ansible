@@ -1,0 +1,26 @@
+---
+- name: Multiple notifications demo
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Change nginx worker_processes
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: '^worker_processes'
+        line: 'worker_processes 2;'
+      notify: Restart nginx
+
+    - name: Change nginx error_log
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: '^error_log'
+        line: 'error_log /var/log/nginx/error.log notice;'
+      notify: Restart nginx
+
+  handlers:
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+
