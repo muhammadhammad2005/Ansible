@@ -1,0 +1,18 @@
+---
+- name: Hardware-Based Tasks (Local)
+  hosts: local
+  become: yes
+
+  vars:
+    memory_gb: "{{ (ansible_memtotal_mb / 1024) | round(1) }}"
+    low_memory: "{{ ansible_memtotal_mb < 2048 }}"
+
+  tasks:
+    - debug:
+        msg: |
+          Memory: {{ memory_gb }} GB
+          Low Memory: {{ low_memory }}
+
+    - debug:
+        msg: "Low memory tuning would apply"
+      when: low_memory

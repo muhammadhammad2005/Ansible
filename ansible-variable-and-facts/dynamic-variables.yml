@@ -1,0 +1,10 @@
+---
+- name: Dynamic Variables (Local)
+  hosts: local
+
+  tasks:
+    - set_fact:
+        system_profile: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}"
+
+    - debug:
+        msg: "System Profile: {{ system_profile }}"

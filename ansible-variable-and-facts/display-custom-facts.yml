@@ -1,0 +1,18 @@
+---
+- name: Display Custom Facts (Local)
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Gather all facts (including custom JSON)
+      setup:
+        gather_subset: all
+
+    - name: Show custom application facts
+      debug:
+        msg: |
+          App Name: {{ ansible_local.application.application.name }}
+          Version: {{ ansible_local.application.application.version }}
+          Status: {{ ansible_local.application.application.status }}
+          Last Updated: {{ ansible_local.application.application.last_updated }}
+

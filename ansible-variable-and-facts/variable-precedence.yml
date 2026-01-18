@@ -1,0 +1,19 @@
+---
+- name: Variable Precedence (Local)
+  hosts: local
+
+  vars:
+    environment: "playbook_level"
+
+  tasks:
+    - debug:
+        msg: |
+          Environment: {{ environment }}
+          Custom Var: {{ custom_var }}
+          Database Host: {{ database_host }}
+
+    - set_fact:
+        environment: "task_override"
+
+    - debug:
+        msg: "Environment after override: {{ environment }}"
