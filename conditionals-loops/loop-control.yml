@@ -1,0 +1,33 @@
+---
+- name: Loop Control Demo
+  hosts: local
+  gather_facts: yes
+  become: true
+
+  vars:
+    packages:
+      - name: git
+        required: true
+      - name: docker
+        required: false
+
+  tasks:
+    - name: Install required packages only
+      dnf:
+        name: "{{ item.name }}"
+        state: present
+      loop: "{{ packages }}"
+      when: item.required | bool
+
+    - name: Create numbered backup directories
+      file:
+        path: "/backup/backup-{{ index }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - daily
+        - weekly
+        - monthly
+      loop_control:
+        index_var: index
+

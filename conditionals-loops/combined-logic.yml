@@ -1,0 +1,27 @@
+---
+- name: Combined Logic Demo
+  hosts: local
+  gather_facts: yes
+  become: true
+
+  vars:
+    server_role: web
+
+    roles:
+      web:
+        packages: [httpd, php]
+        services: [httpd]
+
+  tasks:
+    - name: Install role packages
+      dnf:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ roles[server_role].packages }}"
+
+    - name: Start services
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop: "{{ roles[server_role].services }}"

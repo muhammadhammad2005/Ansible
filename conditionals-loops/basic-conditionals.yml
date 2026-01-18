@@ -1,0 +1,37 @@
+---
+- name: Basic Conditionals Demo
+  hosts: local
+  gather_facts: yes
+  become: true
+
+  vars:
+    install_web_server: true
+    environment_type: "production"
+
+  tasks:
+    - name: Install Apache (only if enabled)
+      dnf:
+        name: httpd
+        state: present
+      when: install_web_server | bool
+
+    - name: Start Apache only in production
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+      when: environment_type == "production"
+
+    - name: Message for development
+      debug:
+        msg: "Development environment, Apache not started"
+      when: environment_type == "development"
+
+    - name: Install dev tools on RedHat family
+      dnf:
+        name:
+          - git
+          - vim
+          - curl
+        state: present
+      when: ansible_os_family == "RedHat"

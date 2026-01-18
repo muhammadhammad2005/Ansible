@@ -1,0 +1,38 @@
+---
+- name: Multi Environment Deploy
+  hosts: local
+  gather_facts: yes
+  become: true
+
+  vars:
+    app_name: myapp
+    deploy_env: "{{ env | default('development') }}"
+
+    environment_configs:
+      development:
+        debug_mode: true
+        log_level: DEBUG
+      production:
+        debug_mode: false
+        log_level: ERROR
+
+  tasks:
+    - name: Validate environment
+      fail:
+        msg: "Invalid environment: {{ deploy_env }}"
+      when: deploy_env not in environment_configs
+
+    - name: Create app directory
+      file:
+        path: "/opt/{{ app_name }}"
+        state: directory
+        mode: '0755'
+
+    - name: Deploy config
+      template:
+        src: templates/app-config.j2
+        dest: "/opt/{{ app_name }}/app.conf"
+        mode: '0644'
+      vars:
+        config: "{{ environment_configs[deploy_env] }}"
+

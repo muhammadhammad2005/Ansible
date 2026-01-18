@@ -1,0 +1,35 @@
+---
+- name: Advanced Loops Demo
+  hosts: local
+  gather_facts: yes
+  become: true
+
+  vars:
+    web_apps:
+      - name: app1
+        user: app1user
+        dir: /opt/app1
+      - name: app2
+        user: app2user
+        dir: /opt/app2
+
+  tasks:
+    - name: Create app users
+      user:
+        name: "{{ item.user }}"
+        create_home: yes
+      loop: "{{ web_apps }}"
+
+    - name: Create app directories
+      file:
+        path: "{{ item.dir }}"
+        state: directory
+        owner: "{{ item.user }}"
+        group: "{{ item.user }}"
+        mode: '0755'
+      loop: "{{ web_apps }}"
+
+    - name: Display app info
+      debug:
+        msg: "App {{ item.name }} runs in {{ item.dir }}"
+      loop: "{{ web_apps }}"
