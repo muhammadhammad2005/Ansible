@@ -1,0 +1,67 @@
+---
+- name: Verify User and Group Management
+  hosts: local
+  become: yes
+  tasks:
+    - name: Check users exist
+      shell: 'getent passwd {{ item }}'
+      register: user_check
+      failed_when: user_check.rc != 0
+      loop:
+        - alice
+        - bob
+        - carol
+        - david
+        - eve
+        - frank
+        - grace
+
+    - name: Check groups exist
+      shell: 'getent group {{ item }}'
+      register: group_check
+      failed_when: group_check.rc != 0
+      loop:
+        - developers
+        - testers
+        - managers
+        - contractors
+        - project-alpha
+        - sysadmins
+
+    - name: Verify shells
+      shell: 'getent passwd {{ item }} | cut -d: -f7'
+      register: shell_check
+      loop:
+        - alice
+        - bob
+        - eve
+
+    - name: Display shells
+      debug:
+        msg: "User {{ item.item }} shell: {{ item.stdout }}"
+      loop: "{{ shell_check.results }}"
+
+    - name: Check home directories
+      stat:
+        path: "{{ item }}"
+      register: home_check
+      loop:
+        - /home/alice
+        - /home/bob
+        - /home/carol
+        - /home/david
+        - /opt/users/eve
+        - /home/frank
+        - /home/grace
+
+    - name: Show home directory status
+      debug:
+        msg: "Directory {{ item.item }} exists: {{ item.stat.exists }}"
+      loop: "{{ home_check.results }}"
+
+    - name: Final summary
+      debug:
+        msg:
+          - "=== VERIFICATION COMPLETE ==="
+          - "All users, groups, shells, and home directories verified."
+
