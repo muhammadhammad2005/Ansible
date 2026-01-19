@@ -1,0 +1,7 @@
+tasks/     - Main automation tasks
+handlers/  - Service restarts/reloads
+templates/ - Jinja2 config files
+files/     - Static files
+vars/      - High-priority variables
+defaults/  - Low-priority variables
+meta/      - Role metadata & dependencies

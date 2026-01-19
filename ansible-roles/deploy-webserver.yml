@@ -1,0 +1,6 @@
+---
+- name: Deploy Apache using Role
+  hosts: web_servers
+  become: yes
+  roles:
+    - apache-webserver

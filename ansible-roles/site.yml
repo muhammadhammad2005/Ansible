@@ -1,0 +1,7 @@
+---
+- name: Full Web Server Setup
+  hosts: web_servers
+  become: yes
+  roles:
+    - common
+    - apache-webserver

@@ -1,0 +1,12 @@
+---
+- name: Advanced Apache Deployment
+  hosts: web_servers
+  become: yes
+
+  vars:
+    welcome_message: "Welcome to Local Production Server"
+    company_name: "Al Nafi Labs"
+    site_name: production-site
+
+  roles:
+    - apache-webserver

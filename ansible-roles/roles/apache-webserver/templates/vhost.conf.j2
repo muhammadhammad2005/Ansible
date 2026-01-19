@@ -1,0 +1,16 @@
+# Virtual Host Configuration
+# Managed by Ansible Role
+
+<VirtualHost *:80>
+    ServerName localhost
+    DocumentRoot /var/www/html
+
+    ErrorLog logs/vhost_error.log
+    CustomLog logs/vhost_access.log combined
+
+    <Directory "/var/www/html">
+        AllowOverride None
+        Require all granted
+    </Directory>
+</VirtualHost>
+
