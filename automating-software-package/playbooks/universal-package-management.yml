@@ -1,0 +1,25 @@
+---
+- name: Universal Package Management
+  hosts: all_servers
+  become: yes
+  vars:
+    web_server_packages:
+      RedHat:
+        - httpd
+        - mod_ssl
+      Debian:
+        - apache2
+        - apache2-utils
+
+  tasks:
+    - name: Install web server packages
+      package:
+        name: "{{ web_server_packages[ansible_os_family] }}"
+        state: present
+
+    - name: Start web server (RedHat)
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
