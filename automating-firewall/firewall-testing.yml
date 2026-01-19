@@ -1,0 +1,74 @@
+---
+- name: Test Firewall Configuration
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Ensure SSH service is running
+      systemd:
+        name: sshd
+        state: started
+        enabled: yes
+
+    - name: Ensure HTTP service is running
+      package:
+        name: httpd
+        state: present
+      register: http_install
+
+    - name: Start HTTP service if installed
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+      when: http_install.changed
+
+    - name: Test SSH connectivity (port 22)
+      wait_for:
+        host: 127.0.0.1
+        port: 22
+        state: started
+        timeout: 5
+      register: ssh_test
+      ignore_errors: yes
+
+    - name: Test HTTP connectivity (port 80)
+      wait_for:
+        host: 127.0.0.1
+        port: 80
+        state: started
+        timeout: 5
+      register: http_test
+      ignore_errors: yes
+
+    - name: Test blocked port (port 23)
+      wait_for:
+        host: 127.0.0.1
+        port: 23
+        state: stopped
+        timeout: 5
+      register: telnet_test
+      ignore_errors: yes
+
+    - name: Generate firewall test report
+      debug:
+        msg:
+          - "=== Firewall Test Results for {{ inventory_hostname }} ==="
+          - "SSH (port 22): {{ 'PASS' if ssh_test.failed is not defined else 'FAIL' }}"
+          - "HTTP (port 80): {{ 'PASS' if http_test.failed is not defined else 'BLOCKED or Not Running' }}"
+          - "Blocked port (port 23): {{ 'BLOCKED' if telnet_test.failed is defined else 'FAIL - Should be blocked!' }}"
+
+    - name: Save firewall configuration backup
+      command: firewall-cmd --list-all
+      register: firewall_backup
+
+    - name: Create configuration backup file
+      copy:
+        content: "{{ firewall_backup.stdout }}"
+        dest: "/tmp/firewall-backup-{{ inventory_hostname }}.txt"
+        mode: '0644'
+
+    - name: Display backup location
+      debug:
+        msg: "Firewall configuration backed up to /tmp/firewall-backup-{{ inventory_hostname }}.txt"
+
