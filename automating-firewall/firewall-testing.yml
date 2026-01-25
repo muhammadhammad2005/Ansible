@@ -10,18 +10,16 @@
         state: started
         enabled: yes
 
-    - name: Ensure HTTP service is running
+    - name: Ensure HTTP service is installed
       package:
         name: httpd
         state: present
-      register: http_install
 
-    - name: Start HTTP service if installed
+    - name: Ensure HTTP service is running
       systemd:
         name: httpd
         state: started
         enabled: yes
-      when: http_install.changed
 
     - name: Test SSH connectivity (port 22)
       wait_for:
@@ -71,4 +69,3 @@
     - name: Display backup location
       debug:
         msg: "Firewall configuration backed up to /tmp/firewall-backup-{{ inventory_hostname }}.txt"
-
