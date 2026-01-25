@@ -1,0 +1,15 @@
+---
+- name: Idempotency Demo
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Bad example (non-idempotent)
+      shell: echo "$(date)" >> /tmp/time.log
+      tags: bad
+
+    - name: Good example
+      copy:
+        content: "Managed by Ansible\n"
+        dest: /tmp/managed.txt
+      tags: good
