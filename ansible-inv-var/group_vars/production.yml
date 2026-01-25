@@ -4,5 +4,5 @@ monitoring_enabled: true
 timezone: "UTC"
 
 security_policies:
-  session_timeout: 3600
-  failed_login_attempts: 3
+  session_timeout: 7200
+  failed_login_attempts: 5
