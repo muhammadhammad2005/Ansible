@@ -11,3 +11,13 @@
   template:
     src: ../templates/index.html.j2
     dest: "{{ document_root }}/index.html"
+    owner: apache
+    group: apache
+    mode: "0644"
+  notify: reload apache
+
+handlers:
+  - name: reload apache
+    systemd:
+      name: httpd
+      state: reloaded
