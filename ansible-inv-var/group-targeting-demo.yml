@@ -1,0 +1,28 @@
+---
+- name: Configure Web Servers
+  hosts: webservers
+  tasks:
+    - debug:
+        msg: |
+          Web: {{ inventory_hostname }}
+          Service: {{ service_name }}
+          Root: {{ document_root }}
+          Max Workers: {{ performance_settings.max_request_workers }}
+
+- name: Configure Databases
+  hosts: databases
+  tasks:
+    - debug:
+        msg: |
+          DB: {{ inventory_hostname }}
+          Service: {{ service_name }}
+          Port: {{ mysql_config.port }}
+
+- name: Production Settings
+  hosts: production
+  tasks:
+    - debug:
+        msg: |
+          PROD: {{ inventory_hostname }}
+          Timezone: {{ timezone }}
+          Monitoring: {{ monitoring_enabled }}

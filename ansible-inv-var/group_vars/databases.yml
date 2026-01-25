@@ -1,0 +1,16 @@
+---
+service_name: "mysqld"
+data_directory: "/var/lib/mysql"
+
+required_packages:
+  - mariadb-server
+  - python3-PyMySQL
+
+mysql_config:
+  port: 3306
+  max_connections: 200
+
+backup_schedule:
+  frequency: "daily"
+  retention_days: 30
+  backup_path: "/backup/mysql"
