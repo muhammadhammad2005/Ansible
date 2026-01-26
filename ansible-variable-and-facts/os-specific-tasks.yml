@@ -1,0 +1,24 @@
+---
+- name: OS-Specific Tasks (Local)
+  hosts: local
+  become: yes
+
+  tasks:
+    - name: Display detected OS information
+      debug:
+        msg: |
+          OS Family: {{ ansible_os_family }}
+          Distribution: {{ ansible_distribution }}
+          Version: {{ ansible_distribution_version }}
+
+    - name: Install web server package
+      package:
+        name: "{{ 'httpd' if ansible_os_family == 'RedHat' else 'apache2' }}"
+        state: present
+
+    - name: Ensure web service is running
+      service:
+        name: "{{ 'httpd' if ansible_os_family == 'RedHat' else 'apache2' }}"
+        state: started
+        enabled: yes
+

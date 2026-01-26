@@ -1,0 +1,69 @@
+---
+- name: Add Users to Local System
+  hosts: all
+  become: yes
+  vars:
+    users_to_add:
+      - username: john_doe
+        full_name: "John Doe"
+        shell: /bin/bash
+        groups: ["users","developers"]
+        password: "{{ 'johnpass123' | password_hash('sha512') }}"
+        expires: -1
+        create_home: yes
+      - username: jane_smith
+        full_name: "Jane Smith"
+        shell: /bin/bash
+        groups: ["users","admins"]
+        password: "{{ 'janepass456' | password_hash('sha512') }}"
+        expires: 1735689600
+        create_home: yes
+      - username: temp_user
+        full_name: "Temporary User"
+        shell: /bin/bash
+        groups: ["users"]
+        password: "{{ 'temppass789' | password_hash('sha512') }}"
+        expires: 1672531200
+        create_home: yes
+
+  tasks:
+    - name: Ensure required groups exist
+      group:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - users
+        - developers
+        - admins
+
+    - name: Create users
+      user:
+        name: "{{ item.username }}"
+        comment: "{{ item.full_name }}"
+        shell: "{{ item.shell }}"
+        groups: "{{ item.groups | join(',') }}"
+        password: "{{ item.password }}"
+        expires: "{{ item.expires }}"
+        createhome: "{{ item.create_home }}"
+        state: present
+      loop: "{{ users_to_add }}"
+
+    - name: Setup SSH directory
+      file:
+        path: "/home/{{ item.username }}/.ssh"
+        state: directory
+        owner: "{{ item.username }}"
+        group: "{{ item.username }}"
+        mode: '0700'
+      loop: "{{ users_to_add }}"
+      when: item.create_home
+
+    - name: Create authorized_keys
+      file:
+        path: "/home/{{ item.username }}/.ssh/authorized_keys"
+        state: touch
+        owner: "{{ item.username }}"
+        group: "{{ item.username }}"
+        mode: '0600'
+      loop: "{{ users_to_add }}"
+      when: item.create_home

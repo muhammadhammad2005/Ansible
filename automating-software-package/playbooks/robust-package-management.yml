@@ -1,0 +1,36 @@
+---
+- name: Robust Package Management
+  hosts: all_servers
+  become: yes
+  vars:
+    critical_packages:
+      - sudo
+      - systemd
+    optional_packages:
+      - vim
+      - nano
+    backup_location: /tmp/package_backup
+
+  tasks:
+    - name: Create backup directory
+      file:
+        path: "{{ backup_location }}"
+        state: directory
+        mode: '0755'
+
+    - name: Backup package list
+      shell: rpm -qa > {{ backup_location }}/packages_before_{{ ansible_date_time.epoch }}.txt
+      when: ansible_os_family == "RedHat"
+
+    - name: Install critical packages
+      yum:
+        name: "{{ critical_packages }}"
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install optional packages (ignore errors)
+      yum:
+        name: "{{ optional_packages }}"
+        state: present
+      when: ansible_os_family == "RedHat"
+      ignore_errors: yes

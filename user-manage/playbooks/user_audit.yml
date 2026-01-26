@@ -1,0 +1,79 @@
+---
+- name: User and Group Audit
+  hosts: all
+  become: yes
+  vars:
+    audit_date: "{{ ansible_date_time.date }}"
+    report_path: "/tmp/user_audit_{{ inventory_hostname }}_{{ audit_date }}.txt"
+
+  tasks:
+    - name: Generate audit report header
+      shell: |
+        echo "=== SYSTEM USER AUDIT REPORT ===" > {{ report_path }}
+        echo "Generated on: {{ ansible_date_time.iso8601 }}" >> {{ report_path }}
+        echo "Hostname: {{ inventory_hostname }}" >> {{ report_path }}
+        echo "" >> {{ report_path }}
+
+    - name: List all regular users
+      shell: "getent passwd | awk -F: '$3 >= 1000 {print $1}' >> {{ report_path }}"
+    
+    - name: List all groups
+      shell: "echo 'Groups:' >> {{ report_path }}; getent group | awk -F: '$3 >= 1000 {print $1}' >> {{ report_path }}"
+
+    - name: List sudo access users
+      shell: |
+        echo "Sudoers:" >> {{ report_path }}
+        grep -r "%" /etc/sudoers.d/ 2>/dev/null || echo "No sudo rules found" >> {{ report_path }}
+      failed_when: false
+
+    - name: Gather password aging info
+      shell: |
+        echo "=== PASSWORD AGING INFORMATION ===" >> {{ report_path }}
+        for user in $(getent passwd | awk -F: '$3 >= 1000 {print $1}'); do
+          echo "User: $user" >> {{ report_path }}
+          chage -l $user >> {{ report_path }} 2>/dev/null
+          echo "---" >> {{ report_path }}
+        done
+      failed_when: false
+
+    - name: Generate group membership matrix
+      shell: |
+        echo "=== GROUP MEMBERSHIP MATRIX ===" >> {{ report_path }}
+        for group in $(getent group | awk -F: '$3 >= 1000 {print $1}'); do
+          echo "Group: $group" >> {{ report_path }}
+          getent group $group | cut -d: -f4 | tr ',' '\n' | sed 's/^/  - /' >> {{ report_path }}
+          echo "" >> {{ report_path }}
+        done
+      failed_when: false
+
+    - name: Check for security compliance issues
+      shell: |
+        echo "=== SECURITY COMPLIANCE CHECKS ===" >> {{ report_path }}
+        echo "Users with empty passwords:" >> {{ report_path }}
+        awk -F: '($2 == "" || $2 == "!") {print $1}' /etc/shadow >> {{ report_path }} 2>/dev/null
+        echo "Users with UID 0 (root privileges):" >> {{ report_path }}
+        awk -F: '$3 == 0 {print $1}' /etc/passwd >> {{ report_path }}
+        echo "Users with no home directory:" >> {{ report_path }}
+        getent passwd | awk -F: '$3 >= 1000 && $6 !~ /^\/home/ {print $1 ":" $6}' >> {{ report_path }}
+        echo "Accounts that never expire:" >> {{ report_path }}
+        awk -F: '($8 == "" || $8 == "99999") {print $1}' /etc/shadow >> {{ report_path }}
+      failed_when: false
+
+    - name: Fetch audit report to control node
+      fetch:
+        src: "{{ report_path }}"
+        dest: "./audit_reports/"
+        flat: yes
+
+    - name: Display audit report summary
+      shell: |
+        echo "Audit report generated: {{ report_path }}"
+        echo "Total users: $(getent passwd | awk -F: '$3 >= 1000' | wc -l)"
+        echo "Total groups: $(getent group | awk -F: '$3 >= 1000' | wc -l)"
+        echo "Users with sudo access: $(grep -r "%" /etc/sudoers.d/ 2>/dev/null | wc -l)"
+      register: audit_summary
+      failed_when: false
+
+    - name: Show audit summary
+      debug:
+        msg: "{{ audit_summary.stdout_lines }}"

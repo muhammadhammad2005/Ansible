@@ -1,0 +1,22 @@
+---
+- name: Flush handlers demo
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Update worker_processes safely
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: '^worker_processes'
+        line: 'worker_processes 4;'
+      notify: Restart nginx
+
+    - name: Apply changes immediately
+      meta: flush_handlers
+
+  handlers:
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+

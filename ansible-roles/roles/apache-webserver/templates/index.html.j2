@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ Alnafi }}</title>
+</head>
+<body>
+  <h1>{{ welcome_message }}</h1>
+  <p>Hostname: {{ ansible_hostname }}</p>
+  <p>IP: {{ ansible_default_ipv4.address }}</p>
+  <p>OS: {{ ansible_distribution }} {{ ansible_distribution_version }}</p>
+</body>
+</html>

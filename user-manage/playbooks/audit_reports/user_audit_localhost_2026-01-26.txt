@@ -1,0 +1,222 @@
+=== SYSTEM USER AUDIT REPORT ===
+Generated on: 2026-01-26T11:01:15Z
+Hostname: localhost
+
+nobody
+ec2-user
+centos
+john_doe
+jane_smith
+security_admin
+contractor
+alice_dev
+admin_user
+db_admin
+Groups:
+nobody
+ec2-user
+centos
+developers
+admins
+john_doe
+jane_smith
+security_admin
+contractor
+alice_dev
+admin_user
+web_developers
+database_operators
+system_monitors
+db_admin
+Sudoers:
+=== PASSWORD AGING INFORMATION ===
+User: nobody
+Last password change					: Feb 07, 2024
+Password expires					: never
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+---
+User: ec2-user
+Last password change					: Dec 31, 2025
+Password expires					: never
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+---
+User: centos
+Last password change					: Jan 26, 2026
+Password expires					: never
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+---
+User: john_doe
+Last password change					: Jan 26, 2026
+Password expires					: never
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+---
+User: jane_smith
+Last password change					: Jan 26, 2026
+Password expires					: never
+Password inactive					: never
+Account expires						: Jan 01, 2025
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+---
+User: security_admin
+Last password change					: Jan 26, 2026
+Password expires					: Apr 26, 2026
+Password inactive					: never
+Account expires						: Dec 31, 2024
+Minimum number of days between password change		: 1
+Maximum number of days between password change		: 90
+Number of days of warning before password expires	: 7
+---
+User: contractor
+Last password change					: Jan 26, 2026
+Password expires					: Feb 25, 2026
+Password inactive					: never
+Account expires						: Jun 30, 2024
+Minimum number of days between password change		: 1
+Maximum number of days between password change		: 30
+Number of days of warning before password expires	: 5
+---
+User: alice_dev
+Last password change					: Jan 26, 2026
+Password expires					: never
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+---
+User: admin_user
+Last password change					: Jan 26, 2026
+Password expires					: never
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+---
+User: db_admin
+Last password change					: Jan 26, 2026
+Password expires					: never
+Password inactive					: never
+Account expires						: never
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+---
+=== GROUP MEMBERSHIP MATRIX ===
+Group: nobody
+  - 
+
+Group: ec2-user
+  - 
+
+Group: centos
+  - 
+
+Group: developers
+  - john_doe
+  - alice_dev
+
+Group: admins
+  - jane_smith
+  - admin_user
+
+Group: john_doe
+  - 
+
+Group: jane_smith
+  - 
+
+Group: security_admin
+  - 
+
+Group: contractor
+  - 
+
+Group: alice_dev
+  - 
+
+Group: admin_user
+  - 
+
+Group: web_developers
+  - john_doe
+  - alice_dev
+
+Group: database_operators
+  - db_admin
+  - jane_smith
+
+Group: system_monitors
+  - admin_user
+  - jane_smith
+
+Group: db_admin
+  - 
+
+=== SECURITY COMPLIANCE CHECKS ===
+Users with empty passwords:
+Users with UID 0 (root privileges):
+root
+Users with no home directory:
+nobody:/
+Accounts that never expire:
+root
+bin
+daemon
+adm
+lp
+sync
+shutdown
+halt
+mail
+operator
+games
+ftp
+nobody
+tss
+systemd-coredump
+dbus
+polkitd
+clevis
+libstoragemgmt
+sssd
+setroubleshoot
+tcpdump
+sshd
+chrony
+systemd-resolve
+ec2-user
+avahi
+colord
+geoclue
+rtkit
+flatpak
+gdm
+gnome-initial-setup
+dnsmasq
+pipewire
+dcv
+centos
+cwagent
+john_doe
+alice_dev
+admin_user
+db_admin

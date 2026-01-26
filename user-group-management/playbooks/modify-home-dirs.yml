@@ -1,0 +1,79 @@
+---
+- name: Modify User Home Directories
+  hosts: local
+  become: yes
+  tasks:
+
+    # 1. Ensure base directory for custom homes exists
+    - name: Create custom home directory structure
+      file:
+        path: /opt/users
+        state: directory
+        mode: '0755'
+
+    # 2. Move Eve's existing content (if any) to target location before updating home
+    - name: Move eve's existing home content to /opt/users/eve
+      shell: |
+        if [ -d /home/eve ]; then
+          mkdir -p /opt/users/eve
+          cp -r /home/eve/* /opt/users/eve/ 2>/dev/null || true
+          cp -r /home/eve/.* /opt/users/eve/ 2>/dev/null || true
+        fi
+      ignore_errors: yes
+
+    # 3. Update Eve's home directory and let Ansible handle directory creation
+    - name: Update eve's home
+      user:
+        name: eve
+        home: /opt/users/eve
+        move_home: yes
+
+    # 4. Ensure shared project directory exists
+    - name: Create shared project directory
+      file:
+        path: /home/shared/project-alpha
+        state: directory
+        owner: root
+        group: project-alpha
+        mode: '0770'
+
+    # 5. Create symbolic link for Bob to shared project
+    - name: Create symbolic link in bob's home to shared project
+      file:
+        src: /home/shared/project-alpha
+        dest: /home/bob/project-alpha
+        state: link
+        owner: bob
+        group: developers
+
+    # 6. Set proper permissions on Alice's home directory
+    - name: Ensure alice's home directory permissions
+      file:
+        path: /home/alice
+        state: directory
+        owner: alice
+        group: developers
+        mode: '0750'
+
+    # 7. Create development workspace in Alice's home
+    - name: Create workspace directory for Alice
+      file:
+        path: /home/alice/workspace
+        state: directory
+        owner: alice
+        group: developers
+        mode: '0755'
+
+    # 8. Display home directories for all users
+    - name: Display home directory information
+      shell: |
+        for user in alice bob carol david eve; do
+          echo "User $user home: $(getent passwd $user | cut -d: -f6)"
+          ls -ld $(getent passwd $user | cut -d: -f6) 2>/dev/null || echo "Directory not found"
+        done
+      register: home_info
+
+    - name: Show home directory info
+      debug:
+        msg: "{{ home_info.stdout_lines }}"
+

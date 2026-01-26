@@ -1,0 +1,27 @@
+---
+- name: Advanced Services (Local)
+  hosts: local
+  become: yes
+
+  vars:
+    ssh_service_name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+
+  tasks:
+    - name: Ensure SSH package is installed
+      package:
+        name: openssh-server
+        state: present
+      notify: Restart SSH
+
+    - name: Ensure SSH service is running
+      service:
+        name: "{{ ssh_service_name }}"
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Restart SSH
+      service:
+        name: "{{ ssh_service_name }}"
+        state: restarted
+

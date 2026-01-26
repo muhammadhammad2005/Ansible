@@ -1,0 +1,112 @@
+---
+- name: Implement Comprehensive Security Policy
+  hosts: localhost
+  become: yes
+  vars:
+    web_servers: ['localhost']
+    db_servers: ['localhost']
+
+  tasks:
+
+    # ---------------- Web Server Configuration ----------------
+    - name: Configure web servers with public zone
+      block:
+        - name: Set public zone as default
+          ansible.posix.firewalld:
+            zone: public
+            permanent: yes
+            state: enabled
+            immediate: yes
+
+        - name: Allow web services
+          ansible.posix.firewalld:
+            zone: public
+            service: "{{ item }}"
+            permanent: yes
+            state: enabled
+            immediate: yes
+          loop:
+            - http
+            - https
+            - ssh
+
+        - name: Allow custom web ports
+          ansible.posix.firewalld:
+            zone: public
+            port: "{{ item }}"
+            permanent: yes
+            state: enabled
+            immediate: yes
+          loop:
+            - 8080/tcp
+            - 8443/tcp
+
+      when: inventory_hostname in web_servers
+
+    # ---------------- Database Server Configuration ----------------
+    - name: Configure database servers with internal zone
+      block:
+        - name: Create internal zone
+          ansible.posix.firewalld:
+            zone: internal
+            permanent: yes
+            state: present
+
+        - name: Allow SSH for management
+          ansible.posix.firewalld:
+            zone: internal
+            service: ssh
+            permanent: yes
+            state: enabled
+            immediate: yes
+
+        - name: Allow MySQL from web servers only
+          ansible.posix.firewalld:
+            zone: internal
+            rich_rule: 'rule family="ipv4" source address="127.0.0.1" port port="3306" protocol="tcp" accept'
+            permanent: yes
+            state: enabled
+            immediate: yes
+
+        - name: Block all other MySQL access
+          ansible.posix.firewalld:
+            zone: internal
+            rich_rule: 'rule port port="3306" protocol="tcp" drop'
+            permanent: yes
+            state: enabled
+            immediate: yes
+
+      when: inventory_hostname in db_servers
+
+    # ---------------- Common Security Rules ----------------
+    - name: Apply common security rules to all servers
+      block:
+        - name: Block common attack ports
+          ansible.posix.firewalld:
+            port: "{{ item }}"
+            permanent: yes
+            state: disabled
+            immediate: yes
+          loop:
+            - 23/tcp
+            - 135/tcp
+            - 139/tcp
+            - 445/tcp
+
+        - name: Enable logging for blocked TCP ports 23-1024
+          ansible.posix.firewalld:
+            zone: public
+            rich_rule: 'rule family="ipv4" source address="0.0.0.0/0" port port="23-1024" protocol="tcp" log prefix="FIREWALL-DROP" level="info" drop'
+            permanent: yes
+            state: enabled
+            immediate: yes
+
+    # ---------------- Verify Configuration ----------------
+    - name: Verify final firewall configuration
+      command: firewall-cmd --list-all
+      register: final_config
+
+    - name: Display final firewall configuration
+      debug:
+        msg: "{{ final_config.stdout_lines }}"
+

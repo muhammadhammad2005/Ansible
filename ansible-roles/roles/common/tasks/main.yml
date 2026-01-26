@@ -1,0 +1,9 @@
+---
+- name: Install common tools
+  package:
+    name:
+      - curl
+      - wget
+      - vim
+    state: present
+  become: yes

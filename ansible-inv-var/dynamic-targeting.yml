@@ -1,0 +1,22 @@
+---
+- name: Create dynamic groups
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - group_by:
+        key: "env_{{ environment | default('unknown') }}"
+
+    - group_by:
+        key: "memory_{{ 'high' if ansible_memtotal_mb > 8000 else 'low' }}"
+
+- name: High memory systems
+  hosts: memory_high
+  tasks:
+    - debug:
+        msg: "High memory host: {{ inventory_hostname }}"
+
+- name: Production systems
+  hosts: env_production
+  tasks:
+    - debug:
+        msg: "Production host: {{ inventory_hostname }}"

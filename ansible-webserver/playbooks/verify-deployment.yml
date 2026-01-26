@@ -1,0 +1,25 @@
+---
+- name: Verify Web Server
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Check Apache service
+      systemd:
+        name: httpd
+      register: apache_status
+
+    - name: Check port 80
+      wait_for:
+        port: 80
+        host: 127.0.0.1
+        timeout: 5
+
+    - name: Check homepage
+      uri:
+        url: http://127.0.0.1
+        status_code: 200
+
+    - name: Show results
+      debug:
+        msg: "Apache is {{ apache_status.status.ActiveState }}"

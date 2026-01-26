@@ -1,0 +1,8 @@
+---
+Alnafi: "Al Nafi Training Lab"
+apache_port: 80
+max_connections: 100
+timeout: 300
+
+server_tokens: Prod
+server_signature: Off

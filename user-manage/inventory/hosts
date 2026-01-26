@@ -1,0 +1,7 @@
+[local]
+localhost ansible_connection=local
+
+
+[all:vars]
+ansible_user=centos
+ansible_become=yes

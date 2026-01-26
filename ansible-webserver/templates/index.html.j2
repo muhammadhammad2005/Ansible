@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Welcome to {{ inventory_hostname }}</title>
+</head>
+<body>
+  <h1>Apache Web Server</h1>
+  <p><strong>Host:</strong> {{ inventory_hostname }}</p>
+  <p><strong>IP:</strong> {{ ansible_default_ipv4.address }}</p>
+  <p><strong>OS:</strong> {{ ansible_distribution }} {{ ansible_distribution_version }}</p>
+  <p><strong>Deployed:</strong> {{ ansible_date_time.iso8601 }}</p>
+</body>
+</html>

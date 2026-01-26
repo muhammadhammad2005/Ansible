@@ -1,0 +1,31 @@
+---
+- name: Package Reporting
+  hosts: all_servers
+  become: yes
+  gather_facts: yes
+  vars:
+    report_dir: /tmp/ansible_reports
+
+  tasks:
+    - name: Create report directory
+      file:
+        path: "{{ report_dir }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      run_once: true
+
+    - name: Count installed packages
+      shell: rpm -qa | wc -l
+      register: package_count
+      when: ansible_os_family == "RedHat"
+
+    - name: Generate host report
+      copy:
+        content: |
+          Host: {{ inventory_hostname }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          Packages Installed: {{ package_count.stdout }}
+          Date: {{ ansible_date_time.iso8601 }}
+        dest: "{{ report_dir }}/{{ inventory_hostname }}_package_report.txt"
+      delegate_to: localhost

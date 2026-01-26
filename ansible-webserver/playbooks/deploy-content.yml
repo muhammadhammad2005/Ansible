@@ -1,0 +1,23 @@
+---
+- name: Create document root
+  file:
+    path: "{{ document_root }}"
+    state: directory
+    owner: apache
+    group: apache
+    mode: "0755"
+
+- name: Deploy index.html
+  template:
+    src: ../templates/index.html.j2
+    dest: "{{ document_root }}/index.html"
+    owner: apache
+    group: apache
+    mode: "0644"
+  notify: reload apache
+
+handlers:
+  - name: reload apache
+    systemd:
+      name: httpd
+      state: reloaded

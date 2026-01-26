@@ -1,0 +1,42 @@
+---
+- name: Complete Web Server Setup
+  hosts: webservers
+  become: yes
+
+  vars:
+    document_root: /var/www/html
+
+  tasks:
+    - name: Install Apache stack
+      yum:
+        name:
+          - httpd
+          - firewalld
+        state: present
+
+    - name: Start firewalld
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Allow HTTP
+      ansible.posix.firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: Start Apache
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Deploy website
+      include_tasks: deploy-content.yml
+
+    - name: Test website
+      uri:
+        url: http://127.0.0.1
+        status_code: 200

@@ -1,0 +1,18 @@
+---
+- name: Advanced Apache Deployment
+  hosts: web_servers
+  become: yes
+
+  # Play-level variables for this deployment
+  vars:
+    welcome_message: "Welcome to Local Production Server"  # Displayed on the index page
+    company_name: "Al Nafi Labs"                           # Company name for headers
+    site_name: production-site                              # Site identifier
+
+  # Apply the Apache webserver role
+  roles:
+    - role: apache-webserver
+      vars:
+        welcome_message: "{{ welcome_message }}"
+        company_name: "{{ company_name }}"
+        site_name: "{{ site_name }}"
