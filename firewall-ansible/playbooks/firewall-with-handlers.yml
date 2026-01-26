@@ -1,0 +1,96 @@
+---
+- name: Advanced Firewall Configuration with Handlers (Localhost)
+  hosts: localhost
+  become: yes
+  vars_files:
+    - ../host_vars/localhost.yml  # Include the host-specific firewall variables
+  vars:
+    log_changes: true
+    notification_email: admin@example.com
+
+  tasks:
+    - name: Ensure firewalld is installed
+      package:
+        name: firewalld
+        state: present
+      notify:
+        - start firewalld
+        - enable firewalld
+        - log installation
+
+    - name: Ensure firewalld service is running and enabled
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Configure services
+      firewalld:
+        zone: "{{ item.0.name }}"
+        service: "{{ item.1 }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      with_subelements:
+        - "{{ firewall_zones }}"
+        - services
+      notify:
+        - reload firewalld
+        - log configuration changes
+
+    - name: Configure ports
+      firewalld:
+        zone: "{{ item.0.name }}"
+        port: "{{ item.1 }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      with_subelements:
+        - "{{ firewall_zones }}"
+        - ports
+      notify:
+        - reload firewalld
+        - log configuration changes
+
+    - name: Configure rich rules
+      firewalld:
+        zone: "{{ item.0.name }}"
+        rich_rule: "{{ item.1 }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      with_subelements:
+        - "{{ firewall_zones }}"
+        - rich_rules
+      notify:
+        - reload firewalld
+        - log configuration changes
+
+  handlers:
+    - name: start firewalld
+      systemd:
+        name: firewalld
+        state: started
+
+    - name: enable firewalld
+      systemd:
+        name: firewalld
+        enabled: yes
+
+    - name: reload firewalld
+      systemd:
+        name: firewalld
+        state: reloaded
+
+    - name: log installation
+      lineinfile:
+        path: /tmp/firewall-changes.log
+        line: "{{ ansible_date_time.iso8601 }} - Firewalld installed on {{ inventory_hostname }}"
+        create: yes
+
+    - name: log configuration changes
+      lineinfile:
+        path: /tmp/firewall-changes.log
+        line: "{{ ansible_date_time.iso8601 }} - Firewall configuration updated on {{ inventory_hostname }}"
+        create: yes
+      when: log_changes | bool

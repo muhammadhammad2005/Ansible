@@ -1,0 +1,90 @@
+---
+- name: Configure Dynamic Firewall on Localhost
+  hosts: localhost
+  become: yes
+  vars_files:
+    - ../host_vars/localhost.yml   # Include the host-specific firewall variables
+
+  tasks:
+    - name: Ensure firewalld is installed and updated
+      package:
+        name: firewalld
+        state: latest
+
+    - name: Ensure firewalld service is running and enabled
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Backup current firewall configuration
+      command: firewall-cmd --list-all-zones
+      register: firewall_backup
+
+    - name: Save firewall backup to file
+      copy:
+        content: "{{ firewall_backup.stdout }}"
+        dest: "/tmp/firewall-backup-{{ ansible_date_time.epoch }}.txt"
+
+    - name: Configure firewall zones
+      firewalld:
+        zone: "{{ item.name }}"
+        state: present
+        permanent: yes
+      loop: "{{ firewall_zones }}"
+      notify: reload firewalld
+
+    - name: Configure services for each zone
+      firewalld:
+        zone: "{{ item.0.name }}"
+        service: "{{ item.1 }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      with_subelements:
+        - "{{ firewall_zones }}"
+        - services
+      notify: reload firewalld
+
+    - name: Configure ports for each zone
+      firewalld:
+        zone: "{{ item.0.name }}"
+        port: "{{ item.1 }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      with_subelements:
+        - "{{ firewall_zones }}"
+        - ports
+      notify: reload firewalld
+
+    - name: Configure rich rules for each zone
+      firewalld:
+        zone: "{{ item.0.name }}"
+        rich_rule: "{{ item.1 }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      with_subelements:
+        - "{{ firewall_zones }}"
+        - rich_rules
+      notify: reload firewalld
+
+    - name: Set default zone
+      command: firewall-cmd --set-default-zone={{ default_zone }}
+      notify: reload firewalld
+
+    - name: Verify zone configurations
+      command: firewall-cmd --list-all-zones
+      register: zone_status
+      changed_when: false
+
+    - name: Display zone configurations
+      debug:
+        var: zone_status.stdout_lines
+
+  handlers:
+    - name: reload firewalld
+      systemd:
+        name: firewalld
+        state: reloaded

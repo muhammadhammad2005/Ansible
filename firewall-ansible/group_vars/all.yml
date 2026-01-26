@@ -1,0 +1,16 @@
+# Firewall Zones and Services
+firewall_zones:
+  - name: public
+    target: default
+    services:
+      - http
+      - https
+      - ssh
+    ports:
+      - "8080/tcp"
+      - "8443/tcp"
+    rich_rules:
+      - 'rule family="ipv4" source address="0.0.0.0/0" service name="http" accept'
+      - 'rule family="ipv4" source address="0.0.0.0/0" service name="https" accept'
+
+default_zone: public
