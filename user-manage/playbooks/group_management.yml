@@ -1,0 +1,26 @@
+---
+- name: Manage Groups and Memberships
+  hosts: all
+  become: yes
+  vars:
+    groups_list:
+      - name: developers
+        members: ["john_doe", "alice_dev"]
+      - name: admins
+        members: ["jane_smith", "admin_user"]
+
+  tasks:
+    - name: Create groups
+      group:
+        name: "{{ item.name }}"
+        state: present
+      loop: "{{ groups_list }}"
+
+    - name: Add users to groups
+      user:
+        name: "{{ item.1 }}"
+        groups: "{{ item.0.name }}"
+        append: yes
+      with_subelements:
+        - "{{ groups_list }}"
+        - members
