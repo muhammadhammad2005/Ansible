@@ -1,0 +1,38 @@
+---
+- name: Advanced Package Management
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    packages_to_install:
+      - name: "dnf-plugins-core"
+        state: present
+        type: package
+      - name: nginx
+        state: present
+        type: package
+      - name: nodejs
+        state: present
+        type: package
+        version: "16*"
+    packages_to_remove:
+      - sendmail
+      - postfix
+
+  tasks:
+    - name: Install specific packages
+      dnf:
+        name: "{{ item.name }}{% if item.version is defined %}-{{ item.version }}{% endif %}"
+        state: "{{ item.state }}"
+      loop: "{{ packages_to_install }}"
+
+    - name: Remove unwanted packages
+      dnf:
+        name: "{{ packages_to_remove }}"
+        state: absent
+
+    - name: Clean package cache
+      dnf:
+        autoremove: yes
+        update_cache: yes

@@ -1,0 +1,30 @@
+---
+- name: Install and Configure Essential Packages
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    common_packages:
+      - vim-enhanced
+      - curl
+      - wget
+      - git
+      - htop
+
+  tasks:
+    - name: Update package cache
+      dnf:
+        update_cache: yes
+
+    - name: Install common packages
+      dnf:
+        name: "{{ common_packages }}"
+        state: present
+
+    - name: Verify package installation
+      command: rpm -q {{ item }}
+      loop: "{{ common_packages }}"
+      register: package_check
+      failed_when: false
+      changed_when: false
