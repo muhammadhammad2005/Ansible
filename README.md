@@ -8,24 +8,6 @@ This repository contains multiple Ansible labs and projects demonstrating automa
 
 Each folder represents a separate lab or project. Playbooks are designed to run on `localhost` (local machine) but can be adapted for remote hosts.
 
-### Current Labs
-
-| Folder | Description |
-|--------|-------------|
-| `ansible-inv-var` | Labs on inventory files and variables. |
-| `ansible-modules` | Examples of using Ansible modules effectively. |
-| `ansible-roles` | Role-based Ansible projects. |
-| `ansible-software-package` | Automating software installation and package management. |
-| `ansible-variable-and-facts` | Using variables and facts in playbooks. |
-| `ansible-webserver` | Webserver automation (Apache/Nginx). |
-| `automating-firewall` | Automating firewall rules and service monitoring. |
-| `automating-software-package` | Advanced package management and service automation. |
-| `conditionals-loops` | Using conditionals and loops in playbooks. |
-| `handlers` | Playbooks demonstrating Ansible handlers. |
-| `simple-playbook` | Basic playbooks for beginner practice. |
-| `user-group-management` | Automating user and group management tasks. |
-| `user-manage` | Comprehensive lab: user creation, password policies, SSH keys, RBAC, and audit reports. |
-
 > More labs will be added in the future.
 
 ---
