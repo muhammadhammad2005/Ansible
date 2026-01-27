@@ -9,6 +9,7 @@
     firewall_zone: public
 
   tasks:
+    # ---------------- Ensure Firewall is Installed ----------------
     - name: Ensure firewalld is installed
       package:
         name: firewalld
@@ -20,7 +21,8 @@
         state: started
         enabled: yes
 
-    - name: Allow web services
+    # ---------------- Configure Web Services ----------------
+    - name: Allow web services in the firewall
       firewalld:
         service: "{{ item }}"
         zone: "{{ firewall_zone }}"
@@ -30,7 +32,8 @@
       loop: "{{ web_services }}"
       notify: reload firewalld
 
-    - name: Show active services
+    # ---------------- Display Active Services ----------------
+    - name: Show active services in firewall
       command: firewall-cmd --list-services --zone={{ firewall_zone }}
       register: active_services
       changed_when: false
