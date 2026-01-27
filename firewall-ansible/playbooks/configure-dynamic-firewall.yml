@@ -3,9 +3,10 @@
   hosts: localhost
   become: yes
   vars_files:
-    - ../host_vars/localhost.yml   # Include the host-specific firewall variables
+    - ../host_vars/localhost.yml   # Include host-specific firewall variables
 
   tasks:
+    # ---------------- Ensure Firewall is Installed ----------------
     - name: Ensure firewalld is installed and updated
       package:
         name: firewalld
@@ -17,6 +18,7 @@
         state: started
         enabled: yes
 
+    # ---------------- Backup Existing Configuration ----------------
     - name: Backup current firewall configuration
       command: firewall-cmd --list-all-zones
       register: firewall_backup
@@ -26,6 +28,7 @@
         content: "{{ firewall_backup.stdout }}"
         dest: "/tmp/firewall-backup-{{ ansible_date_time.epoch }}.txt"
 
+    # ---------------- Configure Zones ----------------
     - name: Configure firewall zones
       firewalld:
         zone: "{{ item.name }}"
@@ -34,6 +37,7 @@
       loop: "{{ firewall_zones }}"
       notify: reload firewalld
 
+    # ---------------- Configure Services ----------------
     - name: Configure services for each zone
       firewalld:
         zone: "{{ item.0.name }}"
@@ -46,6 +50,7 @@
         - services
       notify: reload firewalld
 
+    # ---------------- Configure Ports ----------------
     - name: Configure ports for each zone
       firewalld:
         zone: "{{ item.0.name }}"
@@ -58,6 +63,7 @@
         - ports
       notify: reload firewalld
 
+    # ---------------- Configure Rich Rules ----------------
     - name: Configure rich rules for each zone
       firewalld:
         zone: "{{ item.0.name }}"
@@ -70,10 +76,12 @@
         - rich_rules
       notify: reload firewalld
 
+    # ---------------- Set Default Zone ----------------
     - name: Set default zone
       command: firewall-cmd --set-default-zone={{ default_zone }}
       notify: reload firewalld
 
+    # ---------------- Verify Configuration ----------------
     - name: Verify zone configurations
       command: firewall-cmd --list-all-zones
       register: zone_status
