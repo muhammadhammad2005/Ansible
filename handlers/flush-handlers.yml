@@ -1,9 +1,10 @@
 ---
-- name: Flush handlers demo
+- name: Flush Handlers Demo
   hosts: localhost
   become: true
 
   tasks:
+    # Update the worker_processes setting in nginx.conf
     - name: Update worker_processes safely
       lineinfile:
         path: /etc/nginx/nginx.conf
@@ -11,12 +12,18 @@
         line: 'worker_processes 4;'
       notify: Restart nginx
 
-    - name: Apply changes immediately
+    # Immediately apply any pending handlers
+    - name: Apply pending handlers immediately
       meta: flush_handlers
 
+    # Debug message to confirm flush
+    - name: Confirm handlers flushed
+      debug:
+        msg: "All pending handlers executed"
+
   handlers:
+    # Restart nginx to apply changes
     - name: Restart nginx
       service:
         name: nginx
         state: restarted
-
