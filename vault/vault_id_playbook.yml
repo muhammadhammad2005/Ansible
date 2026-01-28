@@ -1,0 +1,19 @@
+---
+- name: Multi-Vault ID Demo
+  hosts: localhost
+  vars_files:
+    - team_dev_secrets.yml
+    - db_secrets.yml
+
+  tasks:
+    - name: Show team info
+      debug:
+        msg: |
+          Team Lead: {{ team_lead_email }}
+          Slack Webhook configured: {{ team_slack_webhook is defined }}
+
+    - name: Show DB info
+      debug:
+        msg: |
+          Database Host: {{ db_host }}
+          Database Name: {{ db_name }}

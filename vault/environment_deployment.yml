@@ -1,0 +1,43 @@
+---
+- name: Environment-Specific Secure Deployment
+  hosts: localhost
+  vars:
+    target_env: "{{ env | default('dev') }}"
+  vars_files:
+    - "{{ target_env }}_secrets.yml"
+
+  tasks:
+    - name: Show current environment
+      debug:
+        msg: "Deploying to {{ target_env }} environment"
+
+    - name: Create environment-specific configuration
+      copy:
+        content: |
+          # {{ target_env | upper }} ENV CONFIG
+          [database]
+          host={{ db_host }}
+          port={{ db_port }}
+          username={{ db_username }}
+          password={{ db_password }}
+          database={{ db_name }}
+
+          [api]
+          key={{ api_key }}
+          token={{ secret_token }}
+
+          [environment]
+          name={{ target_env }}
+          deployment_time={{ ansible_date_time.iso8601 }}
+        dest: "/tmp/{{ target_env }}_config.ini"
+        mode: '0600'
+
+    - name: Validate configuration
+      stat:
+        path: "/tmp/{{ target_env }}_config.ini"
+      register: env_config
+
+    - name: Confirm deployment success
+      debug:
+        msg: "{{ target_env | title }} configuration deployed successfully!"
+      when: env_config.stat.exists
