@@ -61,3 +61,19 @@ Clone the repository:
 git clone https://github.com/muhammadhammad2005/Ansible.git
 cd Ansible
 ```
+Run a playbook from any lab folder:
+```bash
+ansible-playbook playbooks/<playbook-name>.yml
+```
+Some labs require using their specific inventory files.
+
+## 🔄 Continuous Updates
+
+This repository is actively maintained.
+New labs, improvements, and advanced automation scenarios will be added regularly as part of ongoing learning.
+
+## 📘 Notes
+
+Designed for learning and demonstration
+Local-node focused, but concepts apply to remote servers
+Emphasis on clean structure and real-world practices
