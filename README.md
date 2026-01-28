@@ -15,10 +15,10 @@ This is an active learning repository and will keep growing over time.
 
 ## 🧪 Lab Environment
 
-- **Control Node:** Local Linux machine
-- **Managed Nodes:** Localhost / local nodes
-- **Connection Type:** Local execution
-- **Focus:** Safe, reproducible, learning-oriented labs
+- **Control Node:** Cloud machine from Al Nafi lab environment  
+- **Managed Nodes:** Cloud nodes provided for lab exercises  
+- **Connection Type:** Remote execution via SSH / Ansible  
+- **Focus:** Realistic configuration management scenarios
 
 All playbooks are designed to run locally but reflect real production concepts.
 
@@ -74,6 +74,5 @@ New labs, improvements, and advanced automation scenarios will be added regularl
 
 ## 📘 Notes
 
-Designed for learning and demonstration
-Local-node focused, but concepts apply to remote servers
-Emphasis on clean structure and real-world practices
+- Labs are executed on **Al Nafi cloud lab machines**  
+- Designed for learning, practicing real-world Ansible automation
