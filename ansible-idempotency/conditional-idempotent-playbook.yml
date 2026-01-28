@@ -1,0 +1,32 @@
+---
+- name: Conditional Idempotent Operations
+  hosts: local
+  become: yes
+
+  tasks:
+    - name: Check config file
+      stat:
+        path: /etc/custom-app.conf
+      register: custom_config
+
+    - name: Create config if missing
+      copy:
+        dest: /etc/custom-app.conf
+        mode: '0644'
+        content: |
+          app_name=MyApp
+          version=1.0
+          debug=false
+      when: not custom_config.stat.exists
+
+    - name: Ensure log_level
+      lineinfile:
+        path: /etc/custom-app.conf
+        regexp: '^log_level='
+        line: 'log_level=info'
+
+    - name: Ensure debug disabled
+      replace:
+        path: /etc/custom-app.conf
+        regexp: '^debug=true'
+        replace: 'debug=false'

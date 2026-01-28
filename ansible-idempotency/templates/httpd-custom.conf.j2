@@ -1,0 +1,10 @@
+Listen {{ web_port }}
+
+<VirtualHost *:{{ web_port }}>
+    DocumentRoot {{ document_root }}
+    ServerName {{ ansible_hostname }}.local
+
+    <Directory "{{ document_root }}">
+        Require all granted
+    </Directory>
+</VirtualHost>
