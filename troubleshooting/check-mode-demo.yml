@@ -1,0 +1,25 @@
+---
+- name: System Configuration Demo
+  hosts: webservers
+  become: yes
+  vars:
+    packages:
+      - vim
+      - git
+      - curl
+
+  tasks:
+    - name: Install packages
+      yum:
+        name: "{{ packages }}"
+        state: present
+
+    - name: Create user
+      user:
+        name: testuser
+        state: present
+
+    - name: Create directory
+      file:
+        path: /opt/myapp
+        state: directory

@@ -1,0 +1,28 @@
+---
+- name: Problematic Web Server Setup
+  hosts: webservers
+  become: yes
+  vars:
+    web_package: httpd
+    web_service: httpd
+    document_root: /var/www/html
+
+  tasks:
+    - name: Install web server
+      yum:
+        name: "{{ web_package }}"
+        state: present
+
+    - name: Start and enable web service (BROKEN)
+      systemd:
+        name: "{{ web_service }}"
+        state: started
+        enabled: yes
+
+    - name: Create index.html
+      copy:
+        content: "<h1>Welcome to {{ ansible_hostname }}</h1>"
+        dest: "{{ document_root }}/index.html"
+        owner: apache
+        group: apache
+        mode: '0644'

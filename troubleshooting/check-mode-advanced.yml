@@ -1,0 +1,29 @@
+---
+- name: Advanced Check Mode Demo
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Install Apache always
+      yum:
+        name: httpd
+        state: present
+      check_mode: no
+
+    - name: Check Apache
+      command: rpm -q httpd
+      register: apache_check
+      failed_when: false
+      changed_when: false
+      check_mode: no
+
+    - name: Start Apache
+      systemd:
+        name: httpd
+        state: started
+      when: apache_check.rc == 0
+
+    - name: Create content
+      copy:
+        content: "<h1>Check Mode</h1>"
+        dest: /var/www/html/index.html

@@ -1,0 +1,9 @@
+---
+- name: Connection Test
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - ping:
+    - command: whoami
+      become: yes

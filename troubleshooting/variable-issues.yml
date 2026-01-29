@@ -1,0 +1,26 @@
+---
+- name: Variable Debug
+  hosts: webservers
+  vars:
+    app_name: myapp
+    app_version: "1.0"
+
+  tasks:
+    - debug:
+        msg: |
+          App: {{ app_name }}
+          Version: {{ app_version }}
+          Undefined: {{ undefined_var | default('Not defined') }}
+
+    - copy:
+        content: |
+          app={{ app_name }}
+          version={{ app_version }}
+          host={{ ansible_hostname }}
+        dest: /tmp/app.conf
+
+    - command: cat /tmp/app.conf
+      register: output
+
+    - debug:
+        var: output.stdout_lines
