@@ -4,35 +4,49 @@
   become: yes
 
   vars:
-    packages_to_install:
+    redhat_packages:
       - httpd
       - cronie
 
-    services_to_manage:
-      - httpd
-      - crond
+    debian_packages:
+      - apache2
+      - cron
 
   tasks:
-    - name: Install packages
-      package:
-        name: "{{ item }}"
-        state: present
-      loop: "{{ packages_to_install }}"
+    - name: Detect OS family
+      set_fact:
+        service_packages: "{{ redhat_packages if ansible_os_family == 'RedHat' else debian_packages }}"
 
-    - name: Start services
+    - name: Install required packages
+      package:
+        name: "{{ service_packages }}"
+        state: present
+      notify: Restart services
+
+    - name: Ensure services are started and enabled
       systemd:
         name: "{{ item }}"
         state: started
         enabled: yes
-      loop: "{{ services_to_manage }}"
+      loop: "{{ service_packages }}"
 
-    - name: Verify services
+    - name: Collect service status
       systemd:
         name: "{{ item }}"
-      loop: "{{ services_to_manage }}"
-      register: status
+      loop: "{{ service_packages }}"
+      register: service_status
 
-    - name: Report
-      debug:
-        msg: "{{ item.item }} => {{ item.status.ActiveState }}"
-      loop: "{{ status.results }}"
+    - name: Validate services are running
+      assert:
+        that:
+          - item.status.ActiveState == "active"
+        fail_msg: "Service {{ item.item }} is NOT running"
+        success_msg: "Service {{ item.item }} is running correctly"
+      loop: "{{ service_status.results }}"
+
+  handlers:
+    - name: Restart services
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+      loop: "{{ service_packages }}"
