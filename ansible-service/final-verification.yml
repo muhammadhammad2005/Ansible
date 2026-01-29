@@ -1,0 +1,24 @@
+---
+- name: Final Verification
+  hosts: webservers
+  become: yes
+  vars:
+    web_service: httpd
+
+  tasks:
+    - name: Check services
+      systemd:
+        name: "{{ item }}"
+      loop:
+        - httpd
+        - sshd
+
+    - name: Test website
+      uri:
+        url: http://localhost
+        return_content: yes
+      delegate_to: localhost
+
+    - name: Completion
+      debug:
+        msg: "Lab completed successfully"

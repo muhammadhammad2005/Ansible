@@ -1,0 +1,38 @@
+---
+- name: Advanced Services
+  hosts: webservers
+  become: yes
+
+  vars:
+    packages_to_install:
+      - httpd
+      - cronie
+
+    services_to_manage:
+      - httpd
+      - crond
+
+  tasks:
+    - name: Install packages
+      package:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages_to_install }}"
+
+    - name: Start services
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop: "{{ services_to_manage }}"
+
+    - name: Verify services
+      systemd:
+        name: "{{ item }}"
+      loop: "{{ services_to_manage }}"
+      register: status
+
+    - name: Report
+      debug:
+        msg: "{{ item.item }} => {{ item.status.ActiveState }}"
+      loop: "{{ status.results }}"

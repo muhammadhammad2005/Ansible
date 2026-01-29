@@ -1,0 +1,18 @@
+---
+- name: Service Recovery
+  hosts: webservers
+  become: yes
+  vars:
+    web_service: httpd
+
+  tasks:
+    - name: Check status
+      systemd:
+        name: "{{ web_service }}"
+      register: status
+
+    - name: Restart if down
+      systemd:
+        name: "{{ web_service }}"
+        state: restarted
+      when: status.status.ActiveState != "active"

@@ -1,0 +1,44 @@
+---
+- name: Complex Handlers
+  hosts: webservers
+  become: yes
+  vars:
+    web_service: httpd
+    backup_dir: /opt/ansible-backups
+
+  tasks:
+    - name: Create backup dir
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+
+    - name: Backup config
+      copy:
+        src: /etc/httpd/conf/httpd.conf
+        dest: "{{ backup_dir }}/httpd-{{ ansible_date_time.epoch }}.conf"
+        remote_src: yes
+      notify: log backup
+
+    - name: Change config
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^#?ServerTokens'
+        line: 'ServerTokens Prod'
+      notify:
+        - restart web service
+        - validate config
+
+  handlers:
+    - name: restart web service
+      systemd:
+        name: "{{ web_service }}"
+        state: restarted
+
+    - name: validate config
+      command: httpd -t
+
+    - name: log backup
+      lineinfile:
+        path: /var/log/ansible-backups.log
+        line: "{{ ansible_date_time.iso8601 }} backup created"
+        create: yes
