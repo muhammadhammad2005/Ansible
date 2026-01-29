@@ -1,0 +1,16 @@
+---
+- name: Setup Services for Management Lab
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Install Apache
+      yum:
+        name: httpd
+        state: present
+
+    - name: Create custom directory
+      file:
+        path: /var/www/html/custom
+        state: directory
+        mode: '0755'

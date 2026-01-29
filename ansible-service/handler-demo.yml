@@ -1,0 +1,26 @@
+---
+- name: Handler Demo
+  hosts: webservers
+  become: yes
+  vars:
+    web_service: httpd
+
+  tasks:
+    - name: Update index page
+      copy:
+        content: |
+          <h1>Handler Demo</h1>
+          <p>Updated: {{ ansible_date_time.iso8601 }}</p>
+        dest: /var/www/html/index.html
+      notify: restart web service
+
+    - name: Ensure running
+      systemd:
+        name: "{{ web_service }}"
+        state: started
+
+  handlers:
+    - name: restart web service
+      systemd:
+        name: "{{ web_service }}"
+        state: restarted

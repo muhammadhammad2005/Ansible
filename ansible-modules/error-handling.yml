@@ -1,0 +1,26 @@
+---
+- name: Error Handling (Local)
+  hosts: local
+  become: yes
+  tasks:
+    - name: Install non-existing package
+      package:
+        name: fake-package-123
+        state: present
+      ignore_errors: yes
+      register: result
+
+    - name: Show failure message
+      debug:
+        msg: "Failed as expected: {{ result.msg }}"
+      when: result.failed
+
+    - name: Ensure curl installed
+      package:
+        name: curl
+        state: present
+      retries: 3
+      delay: 5
+      register: curl_result
+      until: curl_result is succeeded
+

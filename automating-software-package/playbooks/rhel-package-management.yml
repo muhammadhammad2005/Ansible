@@ -1,0 +1,23 @@
+---
+- name: Red Hat Package Management
+  hosts: rhel_servers
+  become: yes
+  vars:
+    rhel_packages:
+      - epel-release
+      - yum-utils
+      - tree
+      - net-tools
+      - htop
+
+  tasks:
+    - name: Update all packages
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+
+    - name: Install system packages
+      yum:
+        name: "{{ rhel_packages }}"
+        state: present

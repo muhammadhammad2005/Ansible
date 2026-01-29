@@ -1,0 +1,31 @@
+---
+- name: Package Version Control
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    controlled_packages:
+      - name: kernel
+        state: latest
+      - name: openssl
+        state: latest
+      - name: httpd
+        state: present
+        version: "2.4*"
+
+  tasks:
+    - name: Install controlled packages
+      dnf:
+        name: "{{ item.name }}{% if item.version is defined %}-{{ item.version }}{% endif %}"
+        state: "{{ item.state }}"
+      loop: "{{ controlled_packages }}"
+
+    - name: Display current package versions
+      shell: rpm -qa | grep -E "{{ controlled_packages | map(attribute='name') | join('|') }}"
+      register: current_versions
+      changed_when: false
+
+    - name: Show versions
+      debug:
+        msg: "{{ current_versions.stdout_lines }}"

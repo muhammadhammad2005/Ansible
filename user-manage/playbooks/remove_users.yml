@@ -1,0 +1,21 @@
+---
+- name: Remove Users from Local System
+  hosts: all
+  become: yes
+  vars:
+    users_to_remove:
+      - username: temp_user
+        remove_home: yes
+        force_remove: yes
+      - username: old_employee
+        remove_home: no
+        force_remove: no
+
+  tasks:
+    - name: Remove users
+      user:
+        name: "{{ item.username }}"
+        state: absent
+        remove: "{{ item.remove_home }}"
+        force: "{{ item.force_remove }}"
+      loop: "{{ users_to_remove }}"

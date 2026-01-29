@@ -1,0 +1,8 @@
+---
+environment_type: "production"
+monitoring_enabled: true
+timezone: "UTC"
+
+security_policies:
+  session_timeout: 7200
+  failed_login_attempts: 5

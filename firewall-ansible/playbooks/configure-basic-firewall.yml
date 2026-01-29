@@ -1,0 +1,48 @@
+---
+- name: Configure Basic Firewall on Localhost
+  hosts: localhost
+  become: yes
+  vars:
+    web_services:
+      - http
+      - https
+    firewall_zone: public
+
+  tasks:
+    # ---------------- Ensure Firewall is Installed ----------------
+    - name: Ensure firewalld is installed
+      package:
+        name: firewalld
+        state: present
+
+    - name: Ensure firewalld service is running and enabled
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    # ---------------- Configure Web Services ----------------
+    - name: Allow web services in the firewall
+      firewalld:
+        service: "{{ item }}"
+        zone: "{{ firewall_zone }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      loop: "{{ web_services }}"
+      notify: reload firewalld
+
+    # ---------------- Display Active Services ----------------
+    - name: Show active services in firewall
+      command: firewall-cmd --list-services --zone={{ firewall_zone }}
+      register: active_services
+      changed_when: false
+
+    - debug:
+        msg: "Active services in {{ firewall_zone }} zone: {{ active_services.stdout }}"
+
+  handlers:
+    - name: reload firewalld
+      systemd:
+        name: firewalld
+        state: reloaded

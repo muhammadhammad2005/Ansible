@@ -1,0 +1,25 @@
+---
+- name: Basic Nginx Handler Demo
+  hosts: localhost
+  become: true
+
+  tasks:
+    # Update the number of worker processes in nginx.conf
+    - name: Update worker_processes in nginx.conf
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: '^worker_processes'
+        line: 'worker_processes 4;'
+      notify: Restart nginx
+
+    # Optional debug to show confirmation
+    - name: Confirm task executed
+      debug:
+        msg: "worker_processes line updated successfully"
+
+  handlers:
+    # Restart nginx to apply changes
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted

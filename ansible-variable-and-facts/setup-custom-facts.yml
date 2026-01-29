@@ -1,0 +1,31 @@
+---
+- name: Setup Custom Facts (Local)
+  hosts: localhost
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: Ensure facts directory exists
+      file:
+        path: /etc/ansible/facts.d
+        state: directory
+        mode: '0755'
+
+    - name: Create application custom fact JSON
+      copy:
+        dest: /etc/ansible/facts.d/application.fact
+        mode: '0644'
+        content: |
+          {
+            "application": {
+              "name": "MyCustomApp",
+              "version": "1.0.0",
+              "status": "active",
+              "last_updated": "2026-01-17"
+            }
+          }
+
+    - name: Refresh facts to include custom facts
+      setup:
+        gather_subset: all
+

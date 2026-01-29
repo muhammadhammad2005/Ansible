@@ -1,0 +1,41 @@
+---
+- name: Deploy Website Content
+  hosts: webservers
+  become: yes
+
+  vars:
+    document_root: /var/www/html
+
+  tasks:
+    - name: Deploy index.html
+      template:
+        src: ../templates/index.html.j2
+        dest: "{{ document_root }}/index.html"
+        owner: apache
+        group: apache
+        mode: "0644"
+      notify: reload apache
+
+    - name: Deploy CSS file
+      copy:
+        src: ../files/style.css
+        dest: "{{ document_root }}/style.css"
+        owner: apache
+        group: apache
+        mode: "0644"
+
+    - name: Verify website access
+      uri:
+        url: http://127.0.0.1
+        status_code: 200
+      register: web_check
+
+    - name: Show website status
+      debug:
+        msg: "Website reachable with status {{ web_check.status }}"
+
+  handlers:
+    - name: reload apache
+      systemd:
+        name: httpd
+        state: reloaded

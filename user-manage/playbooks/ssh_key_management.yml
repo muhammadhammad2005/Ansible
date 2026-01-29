@@ -1,0 +1,30 @@
+---
+- name: Manage SSH Keys
+  hosts: all
+  become: yes
+  vars:
+    ssh_users:
+      - username: john_doe
+        ssh_keys:
+          - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC7... john@workstation"
+      - username: jane_smith
+        ssh_keys:
+          - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQD8... jane@desktop"
+
+  tasks:
+    - name: Ensure .ssh directory exists
+      file:
+        path: "/home/{{ item.username }}/.ssh"
+        state: directory
+        owner: "{{ item.username }}"
+        group: "{{ item.username }}"
+        mode: '0700'
+      loop: "{{ ssh_users }}"
+
+    - name: Add SSH keys
+      authorized_key:
+        user: "{{ item.0.username }}"
+        key: "{{ item.1 }}"
+      with_subelements:
+        - "{{ ssh_users }}"
+        - ssh_keys

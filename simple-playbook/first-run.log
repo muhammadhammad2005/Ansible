@@ -1,0 +1,24 @@
+
+PLAY [Install and Configure Apache Web Server] *********************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Install Apache] **********************************************************
+ok: [localhost]
+
+TASK [Install extra tools] *****************************************************
+ok: [localhost]
+
+TASK [Create index.html] *******************************************************
+ok: [localhost]
+
+TASK [Configure Apache port] ***************************************************
+ok: [localhost]
+
+TASK [Start and enable Apache] *************************************************
+ok: [localhost]
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=6    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

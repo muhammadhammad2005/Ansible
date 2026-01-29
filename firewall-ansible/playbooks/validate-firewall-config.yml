@@ -1,0 +1,20 @@
+---
+- name: Validate Firewall Configuration
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Check firewalld service
+      command: systemctl is-active firewalld
+      register: result
+      changed_when: false
+
+    - debug:
+        msg: "Firewalld status: {{ result.stdout }}"
+
+    - name: List active services
+      command: firewall-cmd --list-services --zone=public
+      register: services
+      changed_when: false
+
+    - debug:
+        msg: "Active services: {{ services.stdout }}"

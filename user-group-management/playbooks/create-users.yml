@@ -1,0 +1,61 @@
+---
+- name: Create Users with Different Configurations
+  hosts: local
+  become: yes
+  vars:
+    users:
+      - name: alice
+        comment: "Alice Johnson - Senior Developer"
+        uid: 2001
+        group: developers
+        shell: /bin/bash
+        home: /home/alice
+      - name: bob
+        comment: "Bob Smith - Junior Developer"
+        uid: 2002
+        group: developers
+        shell: /bin/bash
+        home: /home/bob
+      - name: carol
+        comment: "Carol Davis - QA Tester"
+        uid: 2003
+        group: testers
+        shell: /bin/bash
+        home: /home/carol
+      - name: david
+        comment: "David Wilson - Project Manager"
+        uid: 2004
+        group: managers
+        groups: managers,developers,testers
+        shell: /bin/bash
+        home: /home/david
+      - name: eve
+        comment: "Eve Brown - External Contractor"
+        uid: 2005
+        group: contractors
+        shell: /bin/sh
+        home: /home/eve
+
+  tasks:
+    - name: Create users
+      user:
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        uid: "{{ item.uid }}"
+        group: "{{ item.group }}"
+        groups: "{{ item.groups | default(omit) }}"
+        shell: "{{ item.shell }}"
+        home: "{{ item.home }}"
+        create_home: yes
+        state: present
+      loop: "{{ users }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Display created users
+      shell: getent passwd | grep -E "(alice|bob|carol|david|eve)"
+      register: user_info
+
+    - name: Show user information
+      debug:
+        msg: "{{ user_info.stdout_lines }}"

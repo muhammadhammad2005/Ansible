@@ -1,0 +1,29 @@
+---
+- name: Idempotency Test
+  hosts: local
+  become: yes
+
+  tasks:
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /opt/test-app
+        - /opt/test-app/config
+        - /opt/test-app/logs
+
+    - name: Create app user
+      user:
+        name: appuser
+        system: yes
+        home: /opt/test-app
+        state: present
+
+    - name: Set ownership
+      file:
+        path: /opt/test-app
+        owner: appuser
+        group: appuser
+        recurse: yes

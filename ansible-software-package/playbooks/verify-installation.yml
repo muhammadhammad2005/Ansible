@@ -1,0 +1,39 @@
+---
+- name: Verify Installation
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Check essential packages
+      package_facts:
+        manager: rpm
+
+    - name: Assert essential packages installed
+      assert:
+        that:
+          - "'vim-enhanced' in ansible_facts.packages"
+          - "'curl' in ansible_facts.packages"
+          - "'wget' in ansible_facts.packages"
+          - "'git' in ansible_facts.packages"
+        success_msg: "All essential packages installed"
+
+    - name: Check Apache
+      systemd:
+        name: httpd
+      register: apache_status
+
+    - name: Assert Apache running
+      assert:
+        that:
+          - apache_status.status.ActiveState == "active"
+
+    - name: Check MariaDB
+      systemd:
+        name: mariadb
+      register: mariadb_status
+
+    - name: Assert MariaDB running
+      assert:
+        that:
+          - mariadb_status.status.ActiveState == "active"

@@ -1,0 +1,15 @@
+---
+apache_package_name: httpd
+apache_service_name: httpd
+apache_user: apache
+apache_group: apache
+
+document_root: /var/www/html
+apache_config_dir: /etc/httpd/conf.d
+
+site_name: local-site
+server_name: localhost
+server_admin: admin@localhost
+
+welcome_message: "Welcome to Apache Web Server!"
+company_name: "Ansible Lab"

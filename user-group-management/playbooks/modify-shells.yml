@@ -1,0 +1,29 @@
+---
+- name: Modify User Shells
+  hosts: local
+  become: yes
+  tasks:
+    - name: Install zsh if not present
+      package:
+        name: zsh
+        state: present
+      ignore_errors: yes
+
+    - name: Change alice's shell to zsh
+      user:
+        name: alice
+        shell: /bin/zsh
+
+    - name: Change eve's shell to restricted shell
+      user:
+        name: eve
+        shell: /bin/sh
+
+    - name: Display current shell info
+      shell: 'getent passwd | grep -E "(alice|bob|carol|david|eve)" | cut -d: -f1,7'
+      register: shell_info
+
+    - name: Show shell info
+      debug:
+        msg: "{{ shell_info.stdout_lines }}"
+

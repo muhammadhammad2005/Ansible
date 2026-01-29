@@ -1,0 +1,31 @@
+---
+- name: Dynamic Variables (Local)
+  hosts: local
+  gather_facts: yes  # Ensure facts are gathered for dynamic variable calculation
+
+  tasks:
+    - name: Set dynamic system profile
+      set_fact:
+        system_profile: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}"
+
+    - name: Set detailed system info as dynamic facts
+      set_fact:
+        system_info:
+          hostname: "{{ ansible_hostname }}"
+          os: "{{ ansible_distribution }} {{ ansible_distribution_version }}"
+          kernel: "{{ ansible_kernel }}"
+          memory_mb: "{{ ansible_memtotal_mb }}"
+          cpu_cores: "{{ ansible_processor_cores }}"
+
+    - name: Display system profile
+      debug:
+        msg: "System Profile: {{ system_profile }}"
+
+    - name: Display detailed system info
+      debug:
+        msg: |
+          Hostname: {{ system_info.hostname }}
+          OS: {{ system_info.os }}
+          Kernel: {{ system_info.kernel }}
+          Memory: {{ system_info.memory_mb }} MB
+          CPU Cores: {{ system_info.cpu_cores }}

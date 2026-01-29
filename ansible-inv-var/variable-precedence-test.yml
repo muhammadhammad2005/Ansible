@@ -1,0 +1,13 @@
+---
+- name: Variable Precedence Demo
+  hosts: all
+  vars:
+    test_variable: "playbook_value"
+
+  tasks:
+    - debug:
+        msg: |
+          Host: {{ inventory_hostname }}
+          Test Variable: {{ test_variable }}
+          Environment: {{ environment | default('none') }}
+          Groups: {{ group_names }}

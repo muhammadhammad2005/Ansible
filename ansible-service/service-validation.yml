@@ -1,0 +1,18 @@
+---
+- name: Service Validation
+  hosts: webservers
+  become: yes
+  vars:
+    services:
+      - httpd
+      - crond
+      - sshd
+
+  tasks:
+    - name: Gather service facts
+      service_facts:
+
+    - name: Report running
+      debug:
+        msg: "{{ item.key }} is running"
+      loop: "{{ ansible_facts.services | dict2items | selectattr('value.state','equalto','running') | list }}"

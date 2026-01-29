@@ -1,0 +1,44 @@
+---
+- name: Advanced Conditionals Demo
+  hosts: local
+  gather_facts: yes
+  become: true
+
+  vars:
+    required_memory_gb: 2  # Minimum RAM required for monitoring tools
+
+  tasks:
+    # ---------------- Memory Check ----------------
+    - name: System memory check
+      debug:
+        msg: "RAM OK: {{ ansible_memtotal_mb // 1024 }} GB"
+      when: (ansible_memtotal_mb // 1024) >= required_memory_gb
+
+    - name: Warning for low memory
+      debug:
+        msg: "Low RAM: {{ ansible_memtotal_mb // 1024 }} GB"
+      when: (ansible_memtotal_mb // 1024) < required_memory_gb
+
+    # ---------------- Package Installation ----------------
+    - name: Install monitoring tools if enough RAM
+      dnf:
+        name:
+          - htop
+          - iotop
+        state: present
+      when:
+        - ansible_os_family == "RedHat"
+        - (ansible_memtotal_mb // 1024) >= required_memory_gb
+
+    - name: Check installed packages
+      package_facts:
+
+    # ---------------- Firewall ----------------
+    - name: Open HTTP port if firewalld exists
+      firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+        immediate: yes
+      when: "'firewalld' in ansible_facts.packages"
+      ignore_errors: yes

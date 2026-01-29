@@ -1,0 +1,50 @@
+---
+- name: Configure Web Server with Apache and PHP
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    web_packages:
+      - httpd
+      - php
+      - php-mysqlnd
+      - php-fpm
+      - mod_ssl
+    apache_service: httpd
+
+  tasks:
+    - name: Install web packages
+      dnf:
+        name: "{{ web_packages }}"
+        state: present
+      notify: restart apache
+
+    - name: Start and enable Apache
+      systemd:
+        name: "{{ apache_service }}"
+        state: started
+        enabled: yes
+
+    - name: Create index.html
+      copy:
+        content: |
+          <html>
+          <head><title>Ansible Managed Server</title></head>
+          <body>
+          <h1>Welcome to {{ inventory_hostname }}</h1>
+          <p>This server was configured by Ansible</p>
+          <p>Server IP: {{ ansible_default_ipv4.address | default('127.0.0.1') }}</p>
+          </body>
+          </html>
+        dest: /var/www/html/index.html
+        owner: apache
+        group: apache
+        mode: '0644'
+      notify: restart apache
+
+  handlers:
+    - name: restart apache
+      systemd:
+        name: "{{ apache_service }}"
+        state: restarted

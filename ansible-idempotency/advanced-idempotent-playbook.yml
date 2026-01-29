@@ -1,0 +1,56 @@
+---
+- name: Advanced Idempotent Web Server
+  hosts: local
+  become: yes
+
+  vars:
+    web_port: 8080
+    document_root: /var/www/html
+
+  tasks:
+    - name: Install httpd
+      package:
+        name: httpd
+        state: present
+      notify: restart httpd
+
+    - name: Create web directory
+      file:
+        path: "{{ document_root }}/custom"
+        state: directory
+        owner: apache
+        group: apache
+        mode: '0755'
+
+    - name: Deploy custom httpd config
+      template:
+        src: httpd-custom.conf.j2
+        dest: /etc/httpd/conf.d/custom.conf
+        backup: yes
+      notify: restart httpd
+
+    - name: Create index.html
+      copy:
+        dest: "{{ document_root }}/index.html"
+        owner: apache
+        group: apache
+        mode: '0644'
+        content: |
+          <html>
+          <body>
+          <h1>Idempotent Web Server</h1>
+          <p>Port {{ web_port }}</p>
+          </body>
+          </html>
+
+    - name: Ensure httpd running
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: restart httpd
+      service:
+        name: httpd
+        state: restarted
