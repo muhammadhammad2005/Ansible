@@ -7,6 +7,11 @@
     custom_config_dir: /etc/httpd/conf.d
 
   tasks:
+    - name: Ensure Apache is installed
+      yum:
+        name: httpd
+        state: present
+
     - name: Create custom Apache configuration
       copy:
         content: |
@@ -19,7 +24,7 @@
           </VirtualHost>
         dest: "{{ custom_config_dir }}/custom.conf"
         backup: yes
-      notify: restart apache
+      notify: validate apache
 
     - name: Create log directory
       file:
@@ -37,7 +42,12 @@
         state: present
 
   handlers:
+    - name: validate apache
+      command: apachectl configtest
+      notify: restart apache
+
     - name: restart apache
       systemd:
         name: httpd
         state: restarted
+
