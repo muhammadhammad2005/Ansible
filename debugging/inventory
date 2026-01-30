@@ -1,0 +1,6 @@
+[webservers]
+localhost ansible_connection=local
+
+[all:vars]
+ansible_user=$USER
+ansible_become=yes

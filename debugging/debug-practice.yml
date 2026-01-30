@@ -1,0 +1,29 @@
+---
+- name: Debugging Practice Playbook (Fixed Local)
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Install package htop
+      yum:
+        name: htop
+        state: present
+
+    - name: Create test directory
+      file:
+        path: /tmp/ansible-test
+        state: directory
+        mode: '0755'
+
+    - name: Copy a test file
+      copy:
+        content: "This is a test file created by Ansible"
+        dest: /tmp/test.txt
+        mode: '0644'
+
+    - name: Create greeting file with template
+      copy:
+        content: "Hello {{ inventory_hostname }}!"
+        dest: /tmp/greeting.txt
+        mode: '0644'
+

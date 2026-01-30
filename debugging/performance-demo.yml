@@ -1,0 +1,27 @@
+---
+- name: Performance Optimization Demo (Local)
+  hosts: webservers
+  become: yes
+  strategy: free
+
+  tasks:
+    - name: Install multiple packages efficiently
+      yum:
+        name:
+          - git
+          - tree
+          - unzip
+          - wget
+        state: present
+
+    - name: Create multiple files locally
+      copy:
+        content: "File {{ item }}"
+        dest: "/tmp/file{{ item }}.txt"
+      loop:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+

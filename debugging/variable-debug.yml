@@ -1,0 +1,25 @@
+---
+- name: Variable Debugging Example
+  hosts: webservers
+  become: yes
+  gather_facts: yes
+  vars:
+    custom_message: "Hello from Ansible"
+    package_list:
+      - vim
+      - curl
+      - wget
+
+  tasks:
+    - name: Debug custom message
+      debug:
+        msg: "Custom message is: {{ custom_message }}"
+
+    - name: Debug OS fact
+      debug:
+        var: ansible_distribution
+
+    - name: Loop debug packages
+      debug:
+        msg: "Package {{ item }} will be installed"
+      loop: "{{ package_list }}"
